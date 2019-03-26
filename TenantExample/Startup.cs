@@ -9,6 +9,10 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TenantExample.Data;
+using TenantExample.Data.Context;
+using TenantExample.Data.Repositories;
+using TenantExample.Data.Services;
 
 namespace TenantExample
 {
@@ -33,6 +37,15 @@ namespace TenantExample
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+
+            services.AddSingleton<TenantsContext>();
+            services.AddTransient<TenantsRepository>();
+            services.AddScoped(x => new TenantProvider(new ApplicationContext("default"), x.GetService<TenantsRepository>()));
+            services.AddTransient<ITenantScopeProvider>(x => x.GetService<TenantProvider>());
+            services.AddTransient<IApplicationContextProvider>(x => x.GetService<TenantProvider>());
+            services.AddTransient<NameRepository>();
+            services.AddTransient<NameService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
